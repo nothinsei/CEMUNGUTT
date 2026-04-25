@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Jiwa Seni — Buat Kamu yang Lagi Berjuang</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink: #1a1208;
+      --cream: #f5eedf;
+      --terracotta: #c4622d;
+      --gold: #d4a24a;
+      --sage: #6b8f6e;
+      --dusty-rose: #c98c80;
+      --dark-brown: #2e1a0e;
+      --light-cream: #faf6ed;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--light-cream);
+      color: var(--ink);
+      overflow-x: hidden;
+    }
+
+    /* ── CANVAS TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ── HERO ── */
+    #hero {
+      min-height: 100svh;
+      display: grid;
+      place-items: center;
+      position: relative;
+      background: var(--dark-brown);
+      overflow: hidden;
+      padding: 2rem;
+    }
+
+    .paint-splashes {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+
+    .splash {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      opacity: 0.35;
+      animation: float 8s ease-in-out infinite alternate;
+    }
+    .s1 { width: 420px; height: 420px; background: var(--terracotta); top: -10%; left: -10%; animation-delay: 0s; }
+    .s2 { width: 320px; height: 320px; background: var(--gold); top: 40%; right: -8%; animation-delay: -2s; }
+    .s3 { width: 260px; height: 260px; background: var(--sage); bottom: -5%; left: 30%; animation-delay: -4s; }
+    .s4 { width: 180px; height: 180px; background: var(--dusty-rose); top: 20%; left: 50%; animation-delay: -6s; }
+
+    @keyframes float {
+      from { transform: translate(0, 0) scale(1); }
+      to   { transform: translate(20px, -30px) scale(1.08); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 760px;
+    }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      border: 1px solid rgba(212,162,74,0.4);
+      padding: 0.4rem 1.2rem;
+      border-radius: 100px;
+      margin-bottom: 2rem;
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.8rem, 8vw, 6rem);
+      font-weight: 700;
+      line-height: 1.1;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+      animation: fadeUp 0.9s 0.15s ease both;
+    }
+
+    .hero-title em {
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    .hero-sub {
+      font-size: clamp(1rem, 2.5vw, 1.2rem);
+      color: rgba(245,238,223,0.7);
+      font-weight: 300;
+      line-height: 1.7;
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+      animation: fadeUp 1s 0.3s ease both;
+    }
+
+    .hero-cta {
+      display: inline-block;
+      background: var(--terracotta);
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 500;
+      padding: 0.9rem 2.4rem;
+      border-radius: 100px;
+      text-decoration: none;
+      letter-spacing: 0.03em;
+      transition: transform 0.25s, box-shadow 0.25s;
+      animation: fadeUp 1s 0.45s ease both;
+    }
+    .hero-cta:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(196,98,45,0.4); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Scroll indicator */
+    .scroll-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.4rem;
+      color: rgba(245,238,223,0.4);
+      font-size: 0.7rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      animation: fadeUp 1.2s 0.8s ease both;
+    }
+    .scroll-hint::after {
+      content: '';
+      width: 1px;
+      height: 40px;
+      background: linear-gradient(to bottom, rgba(245,238,223,0.4), transparent);
+      animation: scrollLine 2s ease-in-out infinite;
+    }
+    @keyframes scrollLine {
+      0%,100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.3); }
+    }
+
+    /* ── SECTION BASE ── */
+    section { padding: 6rem 1.5rem; }
+    .container { max-width: 1000px; margin: 0 auto; }
+
+    .section-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      margin-bottom: 0.8rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 1.2rem;
+    }
+
+    .section-body {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #4a3728;
+      max-width: 560px;
+    }
+
+    /* ── QUOTE SECTION ── */
+    #quotes {
+      background: var(--cream);
+      position: relative;
+      overflow: hidden;
+    }
+
+    #quotes::before {
+      content: '"';
+      font-family: 'Playfair Display', serif;
+      font-size: 30rem;
+      color: rgba(196,98,45,0.06);
+      position: absolute;
+      top: -8rem;
+      left: -3rem;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .quotes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .quote-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 2rem;
+      border-left: 4px solid var(--terracotta);
+      position: relative;
+      transition: transform 0.3s, box-shadow 0.3s;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease, box-shadow 0.3s;
+    }
+    .quote-card.visible { opacity: 1; transform: translateY(0); }
+    .quote-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,0.08); }
+
+    .quote-card:nth-child(2) { border-left-color: var(--gold); transition-delay: 0.1s; }
+    .quote-card:nth-child(3) { border-left-color: var(--sage); transition-delay: 0.2s; }
+
+    .quote-text {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.1rem;
+      line-height: 1.65;
+      color: var(--ink);
+      margin-bottom: 1rem;
+    }
+
+    .quote-author {
+      font-size: 0.8rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--terracotta);
+      font-weight: 500;
+    }
+
+    /* ── JOURNEY SECTION ── */
+    #journey {
+      background: var(--dark-brown);
+      color: var(--cream);
+    }
+
+    #journey .section-label { color: var(--gold); }
+    #journey .section-body { color: rgba(245,238,223,0.7); }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 2rem;
+      margin-top: 3.5rem;
+    }
+
+    .step {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .step.visible { opacity: 1; transform: translateY(0); }
+    .step:nth-child(2) { transition-delay: 0.1s; }
+    .step:nth-child(3) { transition-delay: 0.2s; }
+    .step:nth-child(4) { transition-delay: 0.3s; }
+
+    .step-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--terracotta);
+      line-height: 1;
+      margin-bottom: 0.8rem;
+    }
+
+    .step-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      margin-bottom: 0.6rem;
+      color: var(--cream);
+    }
+
+    .step-desc {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: rgba(245,238,223,0.6);
+    }
+
+    /* ── AFFIRMATION SECTION ── */
+    #affirmation {
+      background: var(--light-cream);
+      text-align: center;
+    }
+
+    .affirmation-box {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .affirmation-box .section-label { text-align: center; }
+    .affirmation-box .section-title { text-align: center; }
+
+    .affirmation-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      justify-content: center;
+      margin-top: 2.5rem;
+    }
+
+    .aff-pill {
+      background: #fff;
+      border: 1.5px solid rgba(196,98,45,0.2);
+      border-radius: 100px;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.95rem;
+      color: var(--ink);
+      cursor: default;
+      transition: background 0.25s, border-color 0.25s, transform 0.25s;
+      opacity: 0;
+      animation: pillIn 0.5s ease both;
+    }
+
+    .aff-pill:hover {
+      background: var(--terracotta);
+      color: #fff;
+      border-color: var(--terracotta);
+      transform: scale(1.05);
+    }
+
+    @keyframes pillIn {
+      from { opacity: 0; transform: scale(0.88); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    /* ── PALETTE DIVIDER ── */
+    .palette-bar {
+      height: 6px;
+      background: linear-gradient(90deg,
+        var(--terracotta) 0%,
+        var(--gold) 25%,
+        var(--sage) 50%,
+        var(--dusty-rose) 75%,
+        var(--terracotta) 100%
+      );
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--dark-brown);
+      color: rgba(245,238,223,0.5);
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      font-size: 0.85rem;
+    }
+    footer strong { color: var(--gold); font-family: 'Playfair Display', serif; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 600px) {
+      section { padding: 4rem 1.2rem; }
+      .steps { gap: 1.5rem; }
+      .quotes-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="paint-splashes">
+    <div class="splash s1"></div>
+    <div class="splash s2"></div>
+    <div class="splash s3"></div>
+    <div class="splash s4"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-tag">✦ Buat kamu yang masih berkarya meski capek ✦</div>
+    <h1 class="hero-title">
+      Kamu Bukan Cuma<br>
+      <em>Mahasiswa Seni.</em><br>
+      Kamu Bikin Dunia Lebih Hidup.
+    </h1>
+    <p class="hero-sub">
+      Setiap goresan, setiap revisi tengah malam, setiap karya yang kamu pikir "ini kurang" — semuanya ada artinya. Percaya deh.
+    </p>
+    <a href="#quotes" class="hero-cta">Yuk, baca ini dulu →</a>
+  </div>
+</section>
+
+<!-- ═══ QUOTES ═══ -->
+<section id="quotes">
+  <div class="container">
+    <p class="section-label">Kata-Kata yang Bikin Napas Lega</p>
+    <h2 class="section-title">Mereka Juga<br>Pernah Mau Nyerah.</h2>
+    <p class="section-body">Seniman-seniman besar itu juga pernah bingung, lelah, dan ngerasa karyanya jelek. Bedanya, mereka tetap lanjut.</p>
+
+    <div class="quotes-grid">
+      <div class="quote-card">
+        <p class="quote-text">"Untuk jadi kreatif, kamu harus berani nggak tahu jawabannya."</p>
+        <span class="quote-author">— Henri Matisse</span>
+      </div>
+      <div class="quote-card">
+        <p class="quote-text">"Aku bermimpi sambil melek. Dan aku tahu itu bisa jadi masalah — tapi aku tetap lakuin."</p>
+        <span class="quote-author">— Salvador Dalí</span>
+      </div>
+      <div class="quote-card">
+        <p class="quote-text">"Seni itu bohong yang justru bikin kamu sadar kenyataan."</p>
+        <span class="quote-author">— Pablo Picasso</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="palette-bar"></div>
+
+<!-- ═══ JOURNEY ═══ -->
+<section id="journey">
+  <div class="container">
+    <p class="section-label">Perjalananmu Nggak Sia-Sia</p>
+    <h2 class="section-title" style="color: var(--cream);">Tiap Fase<br>Punya Warnanya Sendiri.</h2>
+    <p class="section-body">Kuliah seni rupa itu bukan cuma soal bisa gambar. Ini soal nemu versi dirimu yang paling jujur.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3 class="step-title">Ragu itu normal</h3>
+        <p class="step-desc">Ngerasa karya kamu kurang bagus? Itu justru tandanya selera kamu makin tinggi. Bukan berarti kamu nggak berbakat — kamu cuma lagi tumbuh.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3 class="step-title">Prosesnya juga bagian dari karya</h3>
+        <p class="step-desc">Sketsa yang dibuang, kanvas yang dicat ulang, revisi yang kesekian kalinya — itu bukan gagal. Itu cara kamu nemuin jalanmu sendiri.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3 class="step-title">Pendapat orang itu cuma satu sudut</h3>
+        <p class="step-desc">Kritik dosen, komentar ortu, atau omongan teman yang nggak nyambung — wajar ada. Tapi kamu yang paling ngerti maksud di balik karyamu.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <h3 class="step-title">Dunia perlu kamu</h3>
+        <p class="step-desc">Tanpa seni, hidup cuma soal angka dan jadwal. Kamu yang bikin semuanya punya rasa. Jangan anggap remeh itu.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="palette-bar"></div>
+
+
+<script>
+  // Intersection Observer for scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.quote-card, .step').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
